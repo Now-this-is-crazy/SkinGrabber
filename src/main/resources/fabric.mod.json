@@ -3,15 +3,15 @@
 	"id": "skingrabber",
 	"version": "${version}",
 	"name": "Skin Grabber",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "Grabs the skin of the nearby player /grabskin",
 	"authors": [
-		"Me!"
+		"RedVortex"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"sources": "https://github.com/Now-this-is-crazy/SkinGrabber",
+		"issues": "https://github.com/Now-this-is-crazy/SkinGrabber/issues"
 	},
-	"license": "CC0-1.0",
+	"license": "MIT",
 	"icon": "assets/skingrabber/icon.png",
 	"environment": "client",
 	"entrypoints": {
