@@ -3,7 +3,7 @@
 	"id": "skingrabber",
 	"version": "${version}",
 	"name": "Skin Grabber",
-	"description": "Grabs the skin of the nearby player /grabskin",
+	"description": "Grabs the skin of the nearest player, /grabskin",
 	"authors": [
 		"RedVortex"
 	],

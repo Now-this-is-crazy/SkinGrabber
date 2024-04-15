@@ -1,5 +1,5 @@
 # Skin Grabber
-Grabs the skin of the nearby player, to use run `/grabskin`
+Grabs the skin of the nearest player, to use run `/grabskin`
 
 ## How to use
 Run `/grabskin` to grab the skin of the nearest player, the player must be within a radius of 5 blocks.
