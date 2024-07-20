@@ -145,7 +145,7 @@ public class SkinGrabber implements ClientModInitializer {
                 )
         );
 
-        player.playSound(SoundEvent.of(new Identifier("minecraft:player.levelup")), 1.0F, 1.0F);
+        player.playSound(SoundEvent.of(Identifier.of("minecraft", "player.levelup")), 1.0F, 1.0F);
 
         return 0;
     }
