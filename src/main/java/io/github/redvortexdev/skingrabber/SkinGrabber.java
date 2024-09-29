@@ -12,6 +12,7 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Style;
@@ -145,7 +146,7 @@ public class SkinGrabber implements ClientModInitializer {
                 )
         );
 
-        player.playSound(SoundEvent.of(Identifier.of("minecraft", "player.levelup")), 1.0F, 1.0F);
+        player.playSound(SoundEvents.ENTITY_PLAYER_LEVELUP, 1.0F, 1.0F);
 
         return 0;
     }
