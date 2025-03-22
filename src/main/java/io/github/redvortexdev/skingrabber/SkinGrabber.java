@@ -58,7 +58,7 @@ public class SkinGrabber implements ClientModInitializer {
                                 )
                                 .append(Text.literal(" Could not find the specified player.")
                                 )
-                        );
+                        , false);
                 return 0;
             }
         }
@@ -80,7 +80,7 @@ public class SkinGrabber implements ClientModInitializer {
                                 .append(Text.literal(" Make sure you are close to a player (6 blocks), alternatively run /grabskin <player>.")
                                         .formatted(Formatting.YELLOW)
                                 )
-                );
+                , false);
                 return 0;
             }
         }
@@ -144,7 +144,7 @@ public class SkinGrabber implements ClientModInitializer {
                 .append(Text.literal(" Check the Console for more information.")
                         .formatted(Formatting.YELLOW)
                 )
-        );
+        , false);
 
         player.playSound(SoundEvents.ENTITY_PLAYER_LEVELUP, 1.0F, 1.0F);
 
