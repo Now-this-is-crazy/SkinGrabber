@@ -17,6 +17,7 @@ import net.minecraft.text.ClickEvent;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.minecraft.text.TextColor;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Util;
 import org.slf4j.Logger;
@@ -37,6 +38,14 @@ public class SkinGrabber implements ClientModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
     public static MinecraftClient MC = MinecraftClient.getInstance();
 
+    private static final TextColor SUCCESS = TextColor.fromRgb(0x7FFF7F);
+    private static final TextColor SUCCESS_HIGHLIGHT = TextColor.fromRgb(0xAAFFAA);
+    private static final TextColor SUCCESS_TEXT = TextColor.fromRgb(0xFFFFFF);
+    private static final TextColor DARK_PREFIX = TextColor.fromRgb(0xAAAAAA);
+    private static final TextColor NOTE = TextColor.fromRgb(0xFFD47F);
+    private static final TextColor NOTE_TEXT = TextColor.fromRgb(0xFFFFAA);
+    private static final TextColor ERROR = TextColor.fromRgb(0xFF5555);
+
     private static void grabCommand(String givenPlayerName, CommandContext<FabricClientCommandSource> context) {
         if (context == null) return;
         if (MC.world == null) return;
@@ -55,7 +64,7 @@ public class SkinGrabber implements ClientModInitializer {
                 player.sendMessage(
                         Text.literal("")
                                 .append(Text.literal("»")
-                                        .formatted(Formatting.RED, Formatting.BOLD)
+                                        .setStyle(Style.EMPTY.withColor(ERROR).withBold(true))
                                 )
                                 .append(Text.literal(" Could not find the specified player.")
                                 )
@@ -71,15 +80,15 @@ public class SkinGrabber implements ClientModInitializer {
                 player.sendMessage(
                         Text.literal("")
                                 .append(Text.literal("»")
-                                        .formatted(Formatting.RED, Formatting.BOLD)
+                                        .setStyle(Style.EMPTY.withColor(ERROR).withBold(true))
                                 )
                                 .append(Text.literal(" Could not find a valid player.")
                                 )
                                 .append(Text.literal("\nℹ")
-                                        .formatted(Formatting.GOLD)
+                                        .setStyle(Style.EMPTY.withColor(NOTE))
                                 )
                                 .append(Text.literal(" Make sure you are close to a player (6 blocks), alternatively run /grabskin <player>.")
-                                        .formatted(Formatting.YELLOW)
+                                        .setStyle(Style.EMPTY.withColor(NOTE_TEXT))
                                 )
                         , false);
                 return;
@@ -115,44 +124,44 @@ public class SkinGrabber implements ClientModInitializer {
 
         player.sendMessage(Text.literal("")
                         .append(Text.literal("»")
-                                .formatted(Formatting.GREEN, Formatting.BOLD)
+                                .setStyle(Style.EMPTY.withColor(SUCCESS).withBold(true))
                         )
                         .append(Text.literal(" Successfully grabbed skin!")
                         )
                         .append(Text.literal("\n›")
-                                .formatted(Formatting.DARK_GRAY)
+                                .setStyle(Style.EMPTY.withColor(DARK_PREFIX))
                         )
                         .append(Text.literal(" Profile Name: ")
-                                .formatted(Formatting.GRAY)
+                                .setStyle(Style.EMPTY.withColor(SUCCESS_HIGHLIGHT))
                         )
                         .append(Text.literal(profileName)
-                                .formatted(Formatting.WHITE)
+                                .setStyle(Style.EMPTY.withColor(SUCCESS_TEXT))
                         )
                         .append(Text.literal("\n›")
-                                .formatted(Formatting.DARK_GRAY)
+                                .setStyle(Style.EMPTY.withColor(DARK_PREFIX))
                         )
                         .append(Text.literal(" URL: ")
-                                .formatted(Formatting.GRAY)
+                                .setStyle(Style.EMPTY.withColor(SUCCESS_HIGHLIGHT))
                         )
                         .append(Text.literal(url)
-                                .formatted(Formatting.WHITE)
                                 .setStyle(Style.EMPTY
+                                        .withColor(SUCCESS_TEXT)
                                         .withClickEvent(new ClickEvent.OpenUrl(URI.create(url)))
                                         .withHoverEvent(new HoverEvent.ShowText(
                                                 Text.literal("Click to open.")
-                                                        .formatted(Formatting.DARK_GRAY)
+                                                        .styled(s2 -> s2.withColor(Formatting.GRAY))
                                         ))
                                 )
                         )
                         .append(Text.literal("\nℹ")
-                                .formatted(Formatting.GOLD)
+                                .setStyle(Style.EMPTY.withColor(NOTE))
                         )
                         .append(Text.literal(" Check the Console for more information.")
-                                .formatted(Formatting.YELLOW)
+                                .setStyle(Style.EMPTY.withColor(NOTE_TEXT))
                         )
                 , false);
 
-        player.playSound(SoundEvents.ENTITY_PLAYER_LEVELUP, 1.0F, 1.0F);
+        player.playSound(SoundEvents.BLOCK_COPPER_BULB_TURN_ON, 1.0F, 1.0F);
 
     }
 
