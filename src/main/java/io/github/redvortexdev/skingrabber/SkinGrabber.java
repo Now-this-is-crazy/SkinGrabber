@@ -2,6 +2,7 @@ package io.github.redvortexdev.skingrabber;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -19,15 +20,13 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.include.com.google.common.base.Charsets;
 
 import java.net.URI;
 import java.util.Base64;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.Collection;
 
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
@@ -36,8 +35,6 @@ public class SkinGrabber implements ClientModInitializer {
 
     public static final String MOD_NAME = "Skin Grabber";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
-    public static MinecraftClient MC = MinecraftClient.getInstance();
-
     private static final TextColor SUCCESS = TextColor.fromRgb(0x7FFF7F);
     private static final TextColor SUCCESS_HIGHLIGHT = TextColor.fromRgb(0xAAFFAA);
     private static final TextColor SUCCESS_TEXT = TextColor.fromRgb(0xFFFFFF);
@@ -45,6 +42,7 @@ public class SkinGrabber implements ClientModInitializer {
     private static final TextColor NOTE = TextColor.fromRgb(0xFFD47F);
     private static final TextColor NOTE_TEXT = TextColor.fromRgb(0xFFFFAA);
     private static final TextColor ERROR = TextColor.fromRgb(0xFF5555);
+    public static MinecraftClient MC = MinecraftClient.getInstance();
 
     private static void grabCommand(String givenPlayerName, CommandContext<FabricClientCommandSource> context) {
         if (context == null) return;
@@ -58,16 +56,17 @@ public class SkinGrabber implements ClientModInitializer {
 
         // Attempt to get the PlayerEntity from the argument, if we fail, resort to the nearest player
         if (givenPlayerName != null) {
-            UUID givenPlayerUUID = MC.getSocialInteractionsManager().getUuid(givenPlayerName);
-            if (givenPlayerUUID != Util.NIL_UUID) grabbedPlayer = world.getPlayerByUuid(givenPlayerUUID);
+            grabbedPlayer = world.getPlayers().stream()
+                    .filter(p -> p.getName().getString().equals(givenPlayerName))
+                    .findFirst()
+                    .orElse(null);
             if (grabbedPlayer == null || isInvalid(grabbedPlayer)) {
                 player.sendMessage(
                         Text.literal("")
                                 .append(Text.literal("»")
                                         .setStyle(Style.EMPTY.withColor(ERROR).withBold(true))
                                 )
-                                .append(Text.literal(" Could not find the specified player.")
-                                )
+                                .append(Text.literal(" Could not find the specified player."))
                         , false);
                 return;
             }
@@ -76,7 +75,7 @@ public class SkinGrabber implements ClientModInitializer {
         if (grabbedPlayer == null) {
             // Get the closest entity
             grabbedPlayer = world.getClosestPlayer(player.getX(), player.getY(), player.getZ(), 5D, (p) -> p != player);
-            if (grabbedPlayer == null || isInvalid(grabbedPlayer, player)) {
+            if (grabbedPlayer == null || isInvalid(grabbedPlayer) || grabbedPlayer.getUuid().equals(player.getUuid())) {
                 player.sendMessage(
                         Text.literal("")
                                 .append(Text.literal("»")
@@ -97,12 +96,12 @@ public class SkinGrabber implements ClientModInitializer {
 
 
         // All the methods we are accessing should already be confirmed to not be null due to isInvalid()
-        Optional<Property> optionalSkin = grabbedPlayer.getGameProfile().getProperties().get("textures").stream().findFirst();
-        if (optionalSkin.isEmpty()) {
+        Collection<Property> textures = grabbedPlayer.getGameProfile().properties().get("textures");
+        if (textures.isEmpty()) {
             // isInvalid already checks if the list is empty, but this is to get rid of the warning
             return;
         }
-        String skin = optionalSkin.get().value();
+        String skin = textures.iterator().next().value();
 
         byte[] byteArray;
         try {
@@ -167,32 +166,34 @@ public class SkinGrabber implements ClientModInitializer {
 
 
     public static boolean isInvalid(PlayerEntity player) {
-        return player.getGameProfile() == null || player.getGameProfile().getProperties() == null || player.getGameProfile().getProperties().get("textures").isEmpty();
-    }
-
-    public static boolean isInvalid(PlayerEntity player, PlayerEntity blacklistedPlayer) {
-        return isInvalid(player) || player == blacklistedPlayer;
+        GameProfile gameProfile = player.getGameProfile();
+        return gameProfile == null || gameProfile.properties() == null || gameProfile.properties().get("textures").isEmpty();
     }
 
     @Override
     public void onInitializeClient() {
         LOGGER.info("Hello Fabric world!");
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
-            dispatcher.register(
-                    literal("grabskin")
-                            .executes(context -> {
-                                grabCommand(null, context);
-                                return 0;
-                            })
-                            .then(
-                                    argument("playerName", StringArgumentType.string())
-                                            .executes(context -> {
-                                                grabCommand(StringArgumentType.getString(context, "playerName"), context);
-                                                return 0;
-                                            })
-                            )
-            );
-        });
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
+                dispatcher.register(
+                        literal("grabskin")
+                                .executes(context -> {
+                                    grabCommand(null, context);
+                                    return 0;
+                                })
+                                .then(
+                                        argument("playerName", StringArgumentType.string())
+                                                .suggests((context, builder) -> {
+                                                    FabricClientCommandSource source = context.getSource();
+                                                    source.getPlayerNames().forEach(builder::suggest);
+                                                    return builder.buildFuture();
+                                                })
+                                                .executes(context -> {
+                                                    grabCommand(StringArgumentType.getString(context, "playerName"), context);
+                                                    return 0;
+                                                })
+                                )
+                )
+        );
     }
 
 }
