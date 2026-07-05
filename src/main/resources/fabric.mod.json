@@ -16,7 +16,11 @@
 	"environment": "client",
 	"entrypoints": {
 		"client": [
-			"io.github.redvortexdev.skingrabber.SkinGrabber"
+			"vortx.red.skingrabber.SkinGrabber"
 		]
+	},
+	"depends": {
+		"java": ">=25",
+		"fabric-api": "*"
 	}
 }
